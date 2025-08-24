@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Misantroman's Cosmovision</title>
+  <meta name="description" content="Misantroman's Cosmovision — blog, micro‑apps, calculators, tools, and musings." />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #111418;
+      --muted: #9aa4af;
+      --text: #e5ecf3;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --ring: rgba(125, 211, 252, 0.45);
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius-2xl: 1.25rem;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 85% -10%, rgba(167,139,250,0.12), transparent 70%),
+                  radial-gradient(900px 600px at -10% 10%, rgba(125,211,252,0.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      letter-spacing: 0.01em;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(to bottom, rgba(11,13,16,0.85), rgba(11,13,16,0.6));
+      border-bottom: 1px solid rgba(125,211,252,0.08);
+    }
+    .nav { max-width: 1100px; margin: 0 auto; padding: .8rem 1rem; display: flex; align-items: center; gap: 1rem; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: .75rem; font-weight: 700; letter-spacing: .02em; }
+    .brand .logo { width: 32px; height: 32px; border-radius: 10px; background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--accent)); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.07), var(--shadow); }
+    .nav a { color: var(--text); opacity: .85; font-weight: 500; }
+    .nav a:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: .5rem; background: linear-gradient(135deg, rgba(125,211,252,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(125,211,252,0.25); padding: .55rem .9rem; border-radius: .8rem; color: var(--text); }
+    .btn:hover { border-color: rgba(125,211,252,0.55); box-shadow: 0 0 0 4px var(--ring); text-decoration: none; }
+
+    section { scroll-margin-top: 90px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 3rem 1rem; }
+
+    .hero { padding-top: 5rem; padding-bottom: 4rem; }
+    .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; align-items: center; }
+    @media (max-width: 900px){ .hero-grid { grid-template-columns: 1fr; } }
+    .headline { font-size: clamp(1.9rem, 2.2vw + 1.2rem, 3rem); font-weight: 800; line-height: 1.1; }
+    .sub { color: var(--muted); max-width: 60ch; }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border: 1px solid rgba(125,211,252,0.18); border-radius: var(--radius-2xl); box-shadow: var(--shadow); padding: 1.25rem; }
+    .badges { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .badge { font-size: .82rem; padding: .35rem .6rem; border-radius: .6rem; border: 1px solid rgba(167,139,250,.3); color: #eae7ff; background: rgba(167,139,250,.12); }
+
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.2rem; }
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    @media (max-width: 900px){ .col-6, .col-4 { grid-column: span 12; } }
+
+    .card { position: relative; overflow: hidden; padding: 1.2rem; border-radius: var(--radius-2xl); border: 1px solid rgba(125,211,252,0.15); background: linear-gradient(180deg, rgba(17,20,24,.9), rgba(17,20,24,.7)); box-shadow: var(--shadow);} 
+    .card h3 { margin: .2rem 0 .4rem; font-size: 1.1rem; }
+    .card p { color: var(--muted); font-size: .95rem; }
+    .card .cta { margin-top: .8rem; display: inline-flex; gap: .4rem; align-items: center; }
+
+    .links { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .pill { padding: .5rem .75rem; border-radius: 999px; background: rgba(125,211,252,.08); border: 1px solid rgba(125,211,252,.2); }
+
+    footer { border-top: 1px solid rgba(125,211,252,0.1); background: #0a0c0f; }
+    .foot { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; display: grid; gap: 1rem; grid-template-columns: 1fr auto; align-items: center; }
+    @media (max-width: 800px){ .foot { grid-template-columns: 1fr; } }
+    .copy { color: var(--muted); font-size: .9rem; }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(125,211,252,.18), transparent); margin: 2rem 0; }
+    .section-title { font-size: 1.6rem; font-weight: 800; margin: .2rem 0 1rem; }
+    .muted { color: var(--muted); }
+
+    /* --- Contact form layout override --- */
+    #contactForm { 
+      grid-template-columns: 1fr !important;  /* override .calc-form's 2 columns */
+    }
+
+    #contactForm .field {
+      display: flex;
+      flex-direction: column;  /* stack label over input */
+      gap: .35rem;
+    }
+
+    #contactForm label {
+      display: block;          /* make label take a full line */
+      margin-bottom: .2rem;
+    }
+
+    /* Button row full width (optional) */
+    #contactForm .actions { grid-column: 1 / -1; }
+
+    /* Image inside the hero glass card */
+    .hero-img {
+      display: block;
+      width: 100%;
+      border-radius: 1rem;
+      border: 1px solid rgba(125,211,252,.18);
+      box-shadow: var(--shadow);
+      margin-top: .9rem;
+    }
+    /* Optional: crop nicely to a fixed ratio */
+    .hero-img.cover {
+      aspect-ratio: 16 / 9;   /* change to 4/3 or 1/1 if you prefer */
+      object-fit: cover;
+      background: #0f1216;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Misantroman's Cosmovision</span>
+      </div>
+      <div class="nav-links">
+        <a href="#projects">Projects</a>
+        <a href="#apps">Apps</a>
+        <a href="#contact" class="btn">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero container" id="home">
+    <div class="hero-grid">
+      <div>
+        <h1 class="headline">End of the world strategist.</h1>
+        <p class="sub">Welcome to <strong>Misantroman's Cosmovision</strong>: minimal blog that hosts tools that help and guide dissidents, in the end of the west-world times. Dedicated to the extraordinary individuals that will shape the future generations. </p>
+        <div class="badges">
+          <span class="badge">Dissident data</span>
+          <span class="badge">NS ideology</span>
+          <span class="badge">Futurism raw perspective</span>
+        </div>
+      </div>
+      <div class="glass">
+        <h3 style="margin-top:0">The last battle incoming</h3>
+        <ul>
+          <!-- <li>Short posts & notes</li>
+          <li>Interactive calculators & tools</li>
+          <li>Embeds and links to other work</li> -->
+        </ul>
+        <img src="assets/superior_man.jpg" alt="Cosmovision cover" class="hero-img cover" loading="lazy"/>
+        <div class="divider"></div>
+        <p class="muted">Jump to the <a href="#apps">Apps</a> and try the new <a href="apps/demographics-projection.html">Demographics Projection</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="container">
+    <h2 class="section-title">Projects & Links</h2>
+    <p class="muted">Dissidence projects where Misantroman is involved in and other personal social media.</p>
+    <div class="grid">
+      <article class="card col-4">
+        <h3>YouTube</h3>
+        <p>Legado Occidental -  Historical Revisionism, Ideology, Philosophy, Geopolitics...</p>
+        <div class="links">
+          <a class="pill" href="https://www.youtube.com/@LegadoOccidental" target="_blank" rel="noopener">Channel</a>
+          <a class="pill" href="https://www.youtube.com/watch?v=EmRwgg2l8nc" target="_blank" rel="noopener">Latest Upload</a>
+        </div>
+      </article>
+      <article class="card col-4">
+        <h3>X / Twitter</h3>
+        <p>Threads, Propaganda, micro‑notes, WIP ideas.</p>
+        <div class="links">
+          <a class="pill" href="https://x.com/misantroman_" target="_blank" rel="noopener">@misantroman_</a>
+        </div>
+      </article>
+      <article class="card col-4">
+        <h3>Telegram</h3>
+        <p>Nacionalistas Hispanos Channel & community.</p>
+        <div class="links">
+          <a class="pill" href="https://t.me/NacionalistasCristianosHispanos" target="_blank" rel="noopener">Telegram Channel</a>
+        </div>
+      </article>
+      <article class="card col-4">
+        <h3>Donations</h3>
+        <p>Your donation supports the creation of new flyers, videos, and projects. Above all supports the new dissident generations.</p>
+        <div class="links">
+          <a class="pill" href="https://buymeacoffee.com/ns.hispanos?new=1" target="_blank" rel="noopener">Buy me a coffee</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="apps" class="container">
+    <h2 class="section-title">Apps & Micro‑Tools</h2>
+    <p class="muted">Add new calculators under <code>/apps</code>. Duplicate the card layout below.</p>
+    <div class="grid">
+      <article class="card col-6">
+        <h3>👥 Demographics Projection</h3>
+        <p>Answering: "Will locals ever be a minority in their own countries?" Project local vs immigrant population growth.</p>
+        <a class="cta" href="apps/demographics-projection.html">Open →</a>
+      </article>
+      <article class="card col-6">
+        <h3>⚙️ Sample Calculator</h3>
+        <p>A tiny standalone page you can copy to build more tools.</p>
+        <a class="cta" href="apps/sample-calculator.html">Open →</a>
+      </article>
+    </div>
+  </section>
+
+  <section id="contact" class="container">
+    <h2 class="section-title">Contact</h2>
+    <p class="muted">Stronger only if united. Reach me via email or the form.</p>
+
+    <div class="grid">
+      <!-- LEFT: Contact details -->
+      <div class="card col-6">
+        <h3 style="margin-top:0">Email</h3>
+        <p><a href="mailto:ns.hispanos@gmail.com">ns.hispanos@gmail.com</a></p>
+
+        <div class="links" style="margin-top:.6rem">
+          <a class="pill" href="https://t.me/NacionalistasHispanos" target="_blank" rel="noopener">Telegram</a>
+        </div>
+
+        <p class="note" style="margin-top:1rem">
+          I will personally reply asap via email, or in the telegram community, just ask for misantroman.
+        </p>
+      </div>
+
+      <!-- RIGHT: Contact form (FormSubmit) -->
+      <div class="card col-6">
+        <form id="contactForm"
+              class="calc-form"
+              style="grid-template-columns: 1fr;"
+              action="https://formsubmit.co/ns.hispanos@gmail.com"
+              method="POST">
+
+          <!-- Visible fields -->
+          <div class="field">
+            <label class="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Your name" required />
+          </div>
+
+          <div class="field">
+            <label class="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
+
+          <div class="field">
+            <label class="message">Message</label>
+            <textarea id="message" name="message" rows="6" placeholder="How can I help?" required></textarea>
+          </div>
+
+          <!-- Hidden FormSubmit options -->
+          <input type="hidden" name="_subject"  value="New message from Misantroman's Cosmovision" />
+          <input type="hidden" name="_captcha"  value="false" />
+          <input type="hidden" name="_template" value="table" />
+          <!-- Optional: redirect back to your page after submit (update URL to your Pages URL) -->
+          <!-- <input type="hidden" name="_next" value="https://victor-velazquez-ai.github.io/cosmovision/#contact" /> -->
+
+          <div class="actions">
+            <button class="btn" type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <footer>
+    <div class="foot">
+      <div class="copy">© <span id="y"></span> Misantroman's Cosmovision. End of the world strategist.</div>
+      <a class="btn" href="#home">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        const el = document.querySelector(id);
+        if(el){ e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

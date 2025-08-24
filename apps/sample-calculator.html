@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sample Calculator — Misantroman's Cosmovision</title>
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; background:#0b0d10; color:#e5ecf3; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue"; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    a { color:#7dd3fc; text-decoration:none; }
+    a:hover { text-decoration: underline; }
+    .card { background: linear-gradient(180deg, rgba(17,20,24,.9), rgba(17,20,24,.7)); border:1px solid rgba(125,211,252,.15); border-radius: 1rem; padding: 1rem; }
+    label { display:block; margin:.5rem 0 .25rem; color:#9aa4af; }
+    input, select, button { width:100%; padding:.7rem .8rem; border-radius:.7rem; border:1px solid rgba(125,211,252,.25); background:#0f1216; color:#e5ecf3; }
+    input:focus, select:focus { outline:none; box-shadow:0 0 0 4px rgba(125,211,252,.4); }
+    .btn { display:inline-block; margin-top:.8rem; padding:.6rem .9rem; border-radius:.7rem; border:1px solid rgba(125,211,252,.4); background:transparent; color:#e5ecf3;}
+    .btn:hover { box-shadow:0 0 0 4px rgba(125,211,252,.25); }
+    .res { margin-top:1rem; padding: .85rem; border-radius:.7rem; border:1px solid rgba(52,211,153,.35); background:rgba(52,211,153,.12); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p><a href="../index.html">← Back to Cosmovision</a></p>
+    <h1>Sample Calculator</h1>
+    <p>This is a minimal starter for a standalone app page. Duplicate this file and edit.</p>
+    <div class="card">
+      <label for="a">A</label>
+      <input id="a" type="number" placeholder="e.g., 40" />
+      <label for="b">B</label>
+      <input id="b" type="number" placeholder="e.g., 2.5" />
+      <button class="btn" onclick="compute()">Compute</button>
+      <div id="out" class="res" style="display:none"></div>
+    </div>
+  </div>
+  <script>
+    function compute(){
+      const a = parseFloat(document.getElementById('a').value || '0');
+      const b = parseFloat(document.getElementById('b').value || '0');
+      const out = document.getElementById('out');
+      const v = a * b;
+      out.style.display = 'block';
+      out.textContent = `Result: ${isFinite(v)? v : 0}`;
+    }
+  </script>
+</body>
+</html>
