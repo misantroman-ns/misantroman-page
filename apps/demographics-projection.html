@@ -59,7 +59,7 @@
       <h1 style="margin:0;font-size:1.6rem;font-weight:800;">Demographics Projection - will locals ever be a minority?</h1>
       <p style="margin:0;"><a href="../index.html">← Back to Cosmovision</a></p>
     </div>
-    <p class="note">Simple demographics projection model (Optimistic, reality is worse). Considering birthrates, a fair  1% death per year for both populations and non out‑migration. For rough demonstration only.</p>
+    <p class="note">Simple demographics projection model (Optimistic, reality is worse). Considering birthrates, a fair death per year for both populations and non out‑migration. Main drawback, this model doesnt consider age distribution, locals will suffer a high death rate in the next 10 years, while foreigners will percive close to zero. Neither considers the fact that many foreigners have citizenship. For rough demonstration only.</p>
 
     <div class="grid">
       <div class="col-4">
@@ -209,7 +209,14 @@
       let local = p.pctlocal/100 * total;
       let imm = total - local;
 
-      const deathRate = 0.01; // 1% of each sub-population dies per year
+      const deathRate = 0.015; // 1% of each sub-population dies per year
+      const deathRate_imm = 0.0035; // 1% of each sub-population dies per year
+
+      const wraShare = 0.15;                // women 18–49 as share of total people
+      const wraShare_imm = 0.45;          // women reproductive age
+      const reproYears  = 25;           // length of reproductive span
+      const reproYears_imm  = 35;
+
       const years = p.years;
       const out = {
         year: [],
@@ -228,9 +235,12 @@
       out.immPct.push((imm/total)*100);
 
       for(let y=1; y<=years; y++){
-        // births using your toy model: births = 0.5 * pop * birthrate
-        const birthsLocal = (local * 0.5) * p.br_local;
-        const birthsImm   = (imm * 0.5)   * p.br_imm;
+        // births using your model: births = 0.5 * pop * birthrate
+        const womenLocal = local * wraShare;  // already only women of reproductive age
+        const womenImm   = imm   * wraShare_imm;
+
+        const birthsLocal =  womenLocal * (p.br_local / reproYears);
+        const birthsImm   = womenImm   * (p.br_imm   / reproYears);
 
         // immigration inflow
         let inflow = 0;
@@ -242,11 +252,11 @@
 
         // --- NEW: deaths (1% of each group) ---
         const deathsLocal = local * deathRate;
-        const deathsImm   = imm   * deathRate;
+        const deathsImm   = imm   * deathRate_imm;
 
         // update stocks (clamped to 0 for safety)
-        local = local + birthsLocal - deathsLocal - deathsImm;
-        imm   = imm   + birthsImm + inflow;
+        local = local + birthsLocal - deathsLocal;
+        imm   = imm   + birthsImm + inflow - deathsImm;
         total = local + imm;
 
         out.year.push(y);
