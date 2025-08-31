@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demographics Projection — Misantroman's Cosmovision</title>
+  <meta name="description" content="Project local vs foreign population with births and annual inflow. Charts + milestones." />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #111418;
+      --muted: #9aa4af;
+      --text: #e5ecf3;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --ring: rgba(125, 211, 252, 0.45);
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius-2xl: 1.25rem;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; background:#0b0d10; color:#e5ecf3; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue"; }
+    a { color:#7dd3fc; text-decoration:none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 5rem; }
+    .top { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .card { background: linear-gradient(180deg, rgba(17,20,24,.92), rgba(17,20,24,.75)); border:1px solid rgba(125,211,252,.18); border-radius: 1.1rem; padding: 1rem; box-shadow: var(--shadow); }
+    .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap:1rem; }
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    @media (max-width: 1000px){ .col-8, .col-6, .col-4 { grid-column: span 12; } }
+    label { display:block; margin:.5rem 0 .25rem; color:#9aa4af; }
+    input, select, button { width:100%; padding:.72rem .85rem; border-radius:.8rem; border:1px solid rgba(125,211,252,.25); background:#0f1216; color:#e5ecf3; }
+    input:focus, select:focus { outline:none; box-shadow:0 0 0 4px rgba(125,211,252,.35); }
+    .actions { display:flex; gap:.6rem; flex-wrap:wrap; }
+    .btn { display:inline-flex; align-items:center; gap:.4rem; padding:.6rem .9rem; border-radius:.8rem; border:1px solid rgba(125,211,252,.35); background:transparent; color:#e5ecf3; cursor:pointer; }
+    .btn:hover { box-shadow:0 0 0 4px rgba(125,211,252,.25); }
+    .note { color:#9aa4af; font-size:.9rem; }
+    .kpi { display:grid; gap:.2rem; font-size:.95rem; }
+    .kpi strong { font-weight:700; }
+    .divider { height:1px; background:linear-gradient(90deg,transparent,rgba(125,211,252,.18),transparent); margin:1rem 0; }
+    canvas { width:100%; height:420px; }
+    table { width:100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding:.45rem .5rem; border-bottom:1px dashed rgba(125,211,252,.15); text-align:right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2){ text-align:left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1 style="margin:0;font-size:1.6rem;font-weight:800;">Demographics Projection - will locals ever be a minority?</h1>
+    </div>
+    <p class="note">Simple demographics projection model (Optimistic, reality is worse). Considering birthrates, a fair death per year for both populations and non out‑migration. Main drawback, this model doesnt consider age distribution, locals will suffer a high death rate in the next 10 years, while foreigners will percive close to zero. Neither considers the fact that many foreigners have citizenship. For rough demonstration only.</p>
+
+    <div class="grid">
+      <div class="col-4">
+        <div class="card">
+          <label for="total">Initial total population</label>
+          <input id="total" type="number" min="1" step="1" value="10000000" />
+
+          <label for="pctlocal">% local at start</label>
+          <input id="pctlocal" type="number" min="0" max="100" step="0.1" value="83" />
+
+          <label for="years">Years to simulate</label>
+          <input id="years" type="number" min="1" max="500" step="1" value="35" />
+
+          <div class="divider"></div>
+
+          <label for="br_local">Birthrate (local)</label>
+          <input id="br_local" type="number" min="0" step="0.01" value="1.3" />
+
+          <label for="br_imm">Birthrate (foreign)</label>
+          <input id="br_imm" type="number" min="0" step="0.01" value="2.25" />
+
+          <div class="divider"></div>
+
+          <label for="imm_mode">Annual immigrants input</label>
+          <select id="imm_mode">
+            <option value="percent" selected>% of total population</option>
+            <option value="absolute">Absolute number</option>
+          </select>
+
+          <div id="imm_percent_group">
+            <label for="imm_pct">Annual immigrants (% of total)</label>
+            <input id="imm_pct" type="number" min="0" step="0.01" value="0.3" />
+          </div>
+
+          <div id="imm_absolute_group" style="display:none;">
+            <label for="imm_abs">Annual immigrants (absolute)</label>
+            <input id="imm_abs" type="number" min="0" step="1" value="5000" />
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="actions">
+            <button class="btn" id="runBtn">Run projection</button>
+            <button class="btn" id="csvBtn">Download CSV</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+          <h3 style="margin:.2rem 0 .6rem;font-size:1.05rem;">Milestones</h3>
+          <div class="kpi">
+            <div><strong>Foreign surpasses local:</strong> <span id="kpi_crossover">—</span></div>
+            <div><strong>Local falls below 1,000,000:</strong> <span id="kpi_local_lt1m">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-8">
+        <div class="card">
+          <canvas id="chartPop" aria-label="Population over time"></canvas>
+        </div>
+        <div class="card" style="margin-top:1rem;">
+          <canvas id="chartPct" aria-label="Population shares over time"></canvas>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card" id="tableWrap">
+          <h3 style="margin:.2rem 0 .6rem;font-size:1.05rem;">Data</h3>
+          <div class="note" id="tableNote" style="margin-bottom:.6rem;"></div>
+          <div style="overflow:auto;">
+            <table id="tbl"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const runBtn = document.getElementById('runBtn');
+    const csvBtn = document.getElementById('csvBtn');
+    const immMode = document.getElementById('imm_mode');
+    const immPctGroup = document.getElementById('imm_percent_group');
+    const immAbsGroup = document.getElementById('imm_absolute_group');
+    const kpiCross = document.getElementById('kpi_crossover');
+    const kpiLocalLt = document.getElementById('kpi_local_lt1m');
+    let chartPop = null, chartPct = null, lastData = null;
+
+    immMode.addEventListener('change', () => {
+      const m = immMode.value;
+      immPctGroup.style.display = (m === 'percent') ? 'block' : 'none';
+      immAbsGroup.style.display  = (m === 'absolute') ? 'block' : 'none';
+    });
+
+    runBtn.addEventListener('click', () => {
+      const params = readParams();
+      if(!params) return;
+      const data = simulate(params);
+      lastData = data;
+      renderCharts(data);
+      renderTable(data);
+      renderKPIs(data);
+    });
+
+    csvBtn.addEventListener('click', () => {
+      if(!lastData){ alert('Run the projection first.'); return; }
+      const csv = toCSV(lastData);
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'demographics_projection.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function readParams(){
+      const total = toNum('total', 1, 1e12);
+      const pctlocal = toNum('pctlocal', 0, 100);
+      const years = toNum('years', 1, 1000);
+      const br_local = toNum('br_local', 0, 20);
+      const br_imm = toNum('br_imm', 0, 20);
+      const mode = immMode.value;
+      let imm_pct = 0, imm_abs = 0;
+      if(mode === 'percent'){
+        imm_pct = toNum('imm_pct', 0, 100);
+      } else {
+        imm_abs = toNum('imm_abs', 0, 1e12);
+      }
+      if([total,pctlocal,years,br_local,br_imm].some(v => v===null)) return null;
+      return { total, pctlocal, years, br_local, br_imm, mode, imm_pct, imm_abs };
+    }
+
+    function toNum(id, min, max){
+      const el = document.getElementById(id);
+      const v = parseFloat(el.value);
+      if(!isFinite(v) || v < min || v > max){
+        el.focus();
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        alert(`Check value for ${id} (must be between ${min} and ${max}).`);
+        return null;
+      }
+      return v;
+    }
+
+    function simulate(p){
+      let total = p.total;
+      let local = p.pctlocal/100 * total;
+      let imm = total - local;
+
+      const deathRate = 0.015; // 1% of each sub-population dies per year
+      const deathRate_imm = 0.0035; // 1% of each sub-population dies per year
+
+      const wraShare = 0.15;                // women 18–49 as share of total people
+      const wraShare_imm = 0.45;          // women reproductive age
+      const reproYears  = 25;           // length of reproductive span
+      const reproYears_imm  = 35;
+
+      const years = p.years;
+      const out = {
+        year: [],
+        local: [],
+        imm: [],
+        total: [],
+        localPct: [],
+        immPct: []
+      };
+
+      out.year.push(0);
+      out.local.push(local);
+      out.imm.push(imm);
+      out.total.push(total);
+      out.localPct.push((local/total)*100);
+      out.immPct.push((imm/total)*100);
+
+      for(let y=1; y<=years; y++){
+        // births using your model: births = 0.5 * pop * birthrate
+        const womenLocal = local * wraShare;  // already only women of reproductive age
+        const womenImm   = imm   * wraShare_imm;
+
+        const birthsLocal =  womenLocal * (p.br_local / reproYears);
+        const birthsImm   = womenImm   * (p.br_imm   / reproYears);
+
+        // immigration inflow
+        let inflow = 0;
+        if(p.mode === 'percent'){
+          inflow = (p.imm_pct/100) * total;
+        } else {
+          inflow = p.imm_abs;
+        }
+
+        // --- NEW: deaths (1% of each group) ---
+        const deathsLocal = local * deathRate;
+        const deathsImm   = imm   * deathRate_imm;
+
+        // update stocks (clamped to 0 for safety)
+        local = local + birthsLocal - deathsLocal;
+        imm   = imm   + birthsImm + inflow - deathsImm;
+        total = local + imm;
+
+        out.year.push(y);
+        out.local.push(local);
+        out.imm.push(imm);
+        out.total.push(total);
+        out.localPct.push( (local/total)*100 );
+        out.immPct.push( (imm/total)*100 );
+      }
+
+      return out;
+    }
+
+    function renderCharts(d){
+      const labels = d.year;
+      const fmt = (n) => n;
+
+      const ctx1 = document.getElementById('chartPop').getContext('2d');
+      const ctx2 = document.getElementById('chartPct').getContext('2d');
+
+      if(chartPop) chartPop.destroy();
+      if(chartPct) chartPct.destroy();
+
+      chartPop = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Local Population', data: d.local, borderWidth: 2, tension: .15 },
+            { label: 'Foreign Population', data: d.imm, borderWidth: 2, tension: .15 },
+            // { label: 'Total Population', data: d.total, borderWidth: 2, tension: .15 },
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Population over Years' },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { title: { display: true, text: 'Year' } },
+            y: { title: { display: true, text: 'Population' }, ticks: { callback: v => formatNumber(v) } }
+          }
+        }
+      });
+
+      chartPct = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Local %', data: d.localPct, borderWidth: 2, tension: .15 },
+            { label: 'Foreign %', data: d.immPct, borderWidth: 2, tension: .15 },
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Population Share over Years' },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { title: { display: true, text: 'Year' } },
+            y: { title: { display: true, text: 'Percentage' }, min: 0, max: 100 }
+          }
+        }
+      });
+    }
+
+    function renderTable(d){
+      const tbl = document.getElementById('tbl');
+      const rows = [];
+      rows.push(`<tr><th>Year</th><th>Local</th><th>Foreign</th><th>Total</th><th>Local %</th><th>Foreign %</th></tr>`);
+      for(let i=0; i<d.year.length; i++){
+        rows.push(`<tr>
+          <td>${d.year[i]}</td>
+          <td>${formatNumber(d.local[i])}</td>
+          <td>${formatNumber(d.imm[i])}</td>
+          <td>${formatNumber(d.total[i])}</td>
+          <td>${d.localPct[i].toFixed(2)}</td>
+          <td>${d.immPct[i].toFixed(2)}</td>
+        </tr>`);
+      }
+      tbl.innerHTML = rows.join('');
+      document.getElementById('tableNote').textContent = `Rows: ${d.year.length}`;
+    }
+
+    function renderKPIs(d){
+      // first year where foreign > local
+      let cross = null;
+      for(let i=0; i<d.year.length; i++){
+        if(d.imm[i] > d.local[i]){ cross = d.year[i]; break; }
+      }
+      kpiCross.textContent = (cross === null) ? 'Not within simulation horizon' : `${cross} years from start`;
+
+      // first year local < 1,000,000
+      let lt = null;
+      for(let i=0; i<d.year.length; i++){
+        if(d.local[i] < 1_000_000){ lt = d.year[i]; break; }
+      }
+      kpiLocalLt.textContent = (lt === null) ? 'Not within simulation horizon' : `${lt} years from start`;
+    }
+
+    function toCSV(d){
+      const header = ['Year','Local','Foreign','Total','Local %','Foreign %'];
+      const lines = [header.join(',')];
+      for(let i=0; i<d.year.length; i++){
+        lines.push([
+          d.year[i],
+          d.local[i],
+          d.imm[i],
+          d.total[i],
+          d.localPct[i],
+          d.immPct[i]
+        ].join(','));
+      }
+      return lines.join('\n');
+    }
+
+    function formatNumber(x){
+      const n = Math.round(x);
+      return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Run once on load with defaults
+    document.addEventListener('DOMContentLoaded', () => {
+      runBtn.click();
+    });
+  </script>
+</body>
+</html>
